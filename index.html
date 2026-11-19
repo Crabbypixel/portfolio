@@ -1,0 +1,494 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>Jaisurya Vetrivel</title>
+<meta name="description" content="Jaisurya Vetrivel — software engineer. Sole developer of a live pre-IPO share trading platform, and of CrabbyGL, a voxel engine written from scratch in C++20 and OpenGL.">
+<meta property="og:title" content="Jaisurya Vetrivel">
+<meta property="og:description" content="Software engineer. A live trading platform in production, a voxel engine in C++20, and physics-informed neural networks at CSIR-4PI.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 3 29 10.5v11L16 29 3 21.5v-11z' fill='%23004f90'/%3E%3Cpath d='M16 3 29 10.5 16 18 3 10.5z' fill='%234a90d9'/%3E%3Cpath d='M16 18v11L3 21.5v-11z' fill='%23003a6b'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: a sticky instrument header over a single measured column; each entry is a
+   record — mono label in the left gutter, prose and figures on the right. */
+:root{
+  --paper:#f1f3f6; --surface:#ffffff; --ink:#0e1620; --muted:#4e5c6b;
+  --line:#d5dae1; --line-soft:#e4e8ed; --accent:#004f90; --accent-ink:#004f90;
+  --accent-wash:rgba(0,79,144,.07); --signal:#8a5200; --shadow:rgba(14,22,32,.07); --on-accent:#ffffff;
+  --font-display:'Archivo','Helvetica Neue',Arial,sans-serif;
+  --font-body:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --font-mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --gutter:160px;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#0a0f15; --surface:#111a23; --ink:#e7edf4; --muted:#93a3b4;
+    --line:#223040; --line-soft:#1a2531; --accent:#62aae9; --accent-ink:#8cc3f3;
+    --accent-wash:rgba(98,170,233,.12); --signal:#e2a455; --shadow:rgba(0,0,0,.4); --on-accent:#07121c;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0a0f15; --surface:#111a23; --ink:#e7edf4; --muted:#93a3b4;
+  --line:#223040; --line-soft:#1a2531; --accent:#62aae9; --accent-ink:#8cc3f3;
+  --accent-wash:rgba(98,170,233,.12); --signal:#e2a455; --shadow:rgba(0,0,0,.4); --on-accent:#07121c;
+  color-scheme:dark;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:var(--font-body); font-size:16px; line-height:1.6;
+  -webkit-font-smoothing:antialiased; overflow-x:hidden;
+}
+img{max-width:100%}
+a{color:var(--accent-ink); text-decoration:none}
+a:hover{text-decoration:underline; text-underline-offset:3px}
+:focus-visible{outline:2px solid var(--accent); outline-offset:3px; border-radius:2px}
+h1,h2,h3{font-family:var(--font-display); text-wrap:balance; margin:0; line-height:1.15}
+p{margin:0}
+ul{margin:0; padding:0; list-style:none}
+code{font-family:var(--font-mono); font-size:.88em; background:var(--accent-wash); padding:.1em .34em; border-radius:3px; color:var(--ink)}
+
+.wrap{max-width:1040px; margin:0 auto;
+  padding-left:max(20px,env(safe-area-inset-left,0px));
+  padding-right:max(20px,env(safe-area-inset-right,0px));
+}
+.skip{position:absolute; left:-9999px}
+.skip:focus{left:12px; top:12px; position:fixed; z-index:50; background:var(--surface); padding:10px 14px; border:1px solid var(--line)}
+
+/* ---------- header ---------- */
+body::before{content:""; position:fixed; inset:0 0 auto; height:env(safe-area-inset-top,0px); background:var(--paper); z-index:10}
+header{position:sticky; top:env(safe-area-inset-top,0px); z-index:9; background:color-mix(in srgb,var(--paper) 88%,transparent); backdrop-filter:blur(8px); border-bottom:1px solid var(--line-soft)}
+@supports not (backdrop-filter:blur(8px)){header{background:var(--paper)}}
+.bar{display:flex; align-items:center; gap:16px; min-height:54px}
+.mark{display:flex; align-items:center; gap:9px; font-family:var(--font-display); font-weight:700; font-size:15px; letter-spacing:-.01em; color:var(--ink)}
+.mark:hover{text-decoration:none}
+.mark svg{display:block}
+nav{margin-left:auto; display:flex; align-items:center; gap:4px}
+nav a{font-family:var(--font-mono); font-size:12.5px; color:var(--muted); padding:6px 9px; border-radius:4px}
+nav a:hover{color:var(--ink); background:var(--accent-wash); text-decoration:none}
+@media (max-width:720px){nav a[data-optional]{display:none}}
+.toggle{margin-left:4px; width:32px; height:32px; display:grid; place-items:center; border:1px solid var(--line); background:transparent; color:var(--muted); border-radius:5px; cursor:pointer; flex:none}
+.toggle:hover{color:var(--ink); border-color:var(--accent)}
+
+/* ---------- hero ---------- */
+.hero{padding-block:clamp(40px,7vw,78px) clamp(32px,5vw,52px)}
+.hero-grid{display:grid; grid-template-columns:minmax(0,1fr) 300px; gap:clamp(24px,4vw,56px); align-items:center}
+@media (max-width:860px){.hero-grid{grid-template-columns:minmax(0,1fr); gap:28px}}
+.eyebrow{font-family:var(--font-mono); font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted)}
+h1{font-size:clamp(38px,7.2vw,64px); font-weight:700; letter-spacing:-.025em; margin-top:10px}
+.lede{margin-top:18px; font-size:clamp(16.5px,1.9vw,19px); color:var(--muted); max-width:58ch}
+.lede strong{color:var(--ink); font-weight:600}
+.links{display:flex; flex-wrap:wrap; gap:9px; margin-top:26px}
+.links a{display:inline-flex; align-items:center; gap:7px; font-family:var(--font-mono); font-size:13px; padding:8px 13px; border:1px solid var(--line); border-radius:6px; color:var(--ink); background:var(--surface)}
+.links a:hover{border-color:var(--accent); color:var(--accent-ink); text-decoration:none}
+.links a.primary{background:var(--accent); border-color:var(--accent); color:var(--on-accent)}
+.links a.primary:hover{opacity:.88; color:var(--on-accent)}
+.links svg{flex:none}
+#voxel{width:100%; height:auto; aspect-ratio:1/.92; max-width:300px; display:block; margin-inline:auto}
+
+/* ---------- metric strip ---------- */
+.strip{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); border-top:1px solid var(--line); border-bottom:1px solid var(--line)}
+@media (max-width:720px){.strip{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.strip div{padding:16px 18px 15px; border-left:1px solid var(--line-soft); min-width:0}
+.strip div:first-child{border-left:0}
+@media (max-width:720px){.strip div:nth-child(3){border-left:0} .strip div:nth-child(-n+2){border-bottom:1px solid var(--line-soft)}}
+.strip b{display:block; font-family:var(--font-display); font-size:clamp(19px,2.6vw,24px); font-weight:600; letter-spacing:-.02em; font-variant-numeric:tabular-nums}
+.strip span{display:block; margin-top:3px; font-family:var(--font-mono); font-size:11.5px; letter-spacing:.04em; text-transform:uppercase; color:var(--muted)}
+
+/* ---------- sections ---------- */
+section{padding-block:clamp(38px,5.5vw,62px); border-bottom:1px solid var(--line-soft)}
+section:last-of-type{border-bottom:0}
+.row{display:grid; grid-template-columns:var(--gutter) minmax(0,1fr); gap:clamp(18px,3vw,40px)}
+@media (max-width:860px){.row{grid-template-columns:minmax(0,1fr); gap:14px}}
+.row>h2{font-size:15px; font-weight:600; letter-spacing:.02em; position:sticky; top:calc(env(safe-area-inset-top,0px) + 76px); align-self:start}
+@media (max-width:860px){.row>h2{position:static}}
+.row>h2 i{display:block; font-style:normal; font-family:var(--font-mono); font-size:11.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--accent-ink); margin-bottom:5px}
+
+.entry+.entry{margin-top:clamp(30px,4vw,46px); padding-top:clamp(30px,4vw,46px); border-top:1px solid var(--line-soft)}
+.entry-head{display:flex; flex-wrap:wrap; align-items:baseline; gap:6px 12px}
+.entry-head h3{font-size:clamp(20px,2.6vw,24px); font-weight:600; letter-spacing:-.018em}
+.role{font-family:var(--font-mono); font-size:12px; color:var(--signal); border:1px solid currentColor; padding:2px 7px; border-radius:99px; line-height:1.5}
+.when{margin-left:auto; font-family:var(--font-mono); font-size:12.5px; color:var(--muted); white-space:nowrap}
+.stack{margin-top:9px; font-family:var(--font-mono); font-size:12.5px; color:var(--muted); word-spacing:-.1em}
+.stack em{font-style:normal; color:var(--accent-ink)}
+.bullets{margin-top:16px; display:grid; gap:11px}
+.bullets li{position:relative; padding-left:18px; color:var(--muted); font-size:15.3px}
+.bullets li::before{content:""; position:absolute; left:2px; top:.62em; width:5px; height:5px; background:var(--accent); border-radius:1px}
+.bullets strong{color:var(--ink); font-weight:600}
+.figs{display:flex; flex-wrap:wrap; gap:0; margin-top:18px; border:1px solid var(--line); border-radius:7px; overflow:hidden; background:var(--surface)}
+.figs div{flex:1 1 128px; min-width:0; padding:11px 14px; border-left:1px solid var(--line-soft)}
+.figs div:first-child{border-left:0}
+.figs b{display:block; font-family:var(--font-mono); font-size:15px; font-weight:500; letter-spacing:-.01em; font-variant-numeric:tabular-nums}
+.figs span{display:block; font-family:var(--font-mono); font-size:11px; letter-spacing:.03em; text-transform:uppercase; color:var(--muted); margin-top:2px}
+.out{margin-top:16px; display:flex; flex-wrap:wrap; gap:16px; font-family:var(--font-mono); font-size:13px}
+.out a::after{content:" ↗"; color:var(--muted)}
+
+/* ---------- skills ---------- */
+.skills{display:grid; gap:18px}
+.skills div{display:grid; grid-template-columns:132px minmax(0,1fr); gap:16px; padding-bottom:18px; border-bottom:1px solid var(--line-soft)}
+.skills div:last-child{border-bottom:0; padding-bottom:0}
+@media (max-width:560px){.skills div{grid-template-columns:minmax(0,1fr); gap:5px}}
+.skills dt{font-family:var(--font-mono); font-size:12px; letter-spacing:.06em; text-transform:uppercase; color:var(--accent-ink); padding-top:2px}
+.skills dd{margin:0; color:var(--muted); font-size:15.3px}
+.skills dd b{color:var(--ink); font-weight:500}
+
+/* ---------- background / footer ---------- */
+.fact{display:grid; grid-template-columns:minmax(0,1fr) auto; gap:10px 20px; align-items:baseline; padding:13px 0; border-bottom:1px solid var(--line-soft)}
+.fact:last-child{border-bottom:0}
+.fact p{color:var(--muted); font-size:15.3px}
+.fact p b{color:var(--ink); font-weight:600; font-family:var(--font-display)}
+.fact span{font-family:var(--font-mono); font-size:12.5px; color:var(--muted); white-space:nowrap}
+footer{padding-block:44px 54px}
+.foot{display:flex; flex-wrap:wrap; gap:18px; align-items:flex-end; justify-content:space-between}
+.foot h2{font-size:clamp(22px,3.4vw,30px); font-weight:600; letter-spacing:-.02em}
+.foot p{color:var(--muted); margin-top:8px; max-width:46ch}
+.mail{font-family:var(--font-mono); font-size:15px; display:inline-flex; align-items:center; gap:8px; margin-top:14px}
+.copy{border:1px solid var(--line); background:var(--surface); color:var(--muted); font-family:var(--font-mono); font-size:11px; padding:3px 8px; border-radius:4px; cursor:pointer}
+.copy:hover{color:var(--accent-ink); border-color:var(--accent)}
+.colophon{margin-top:34px; padding-top:16px; border-top:1px solid var(--line-soft); font-family:var(--font-mono); font-size:11.5px; color:var(--muted); display:flex; flex-wrap:wrap; gap:6px 18px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important; transition:none!important; scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header>
+  <div class="wrap bar">
+    <a class="mark" href="#top">
+      <svg width="20" height="20" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3 29 10.5v11L16 29 3 21.5v-11z" fill="var(--accent)" opacity=".25"/><path d="M16 3 29 10.5 16 18 3 10.5z" fill="var(--accent)"/><path d="M16 18v11L3 21.5v-11z" fill="var(--accent)" opacity=".6"/></svg>
+      Jaisurya Vetrivel
+    </a>
+    <nav>
+      <a href="#work">work</a>
+      <a href="#research" data-optional>research</a>
+      <a href="#stack">stack</a>
+      <a href="#contact" data-optional>contact</a>
+      <button class="toggle" id="theme" type="button" aria-label="Switch colour theme">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 1.6v2.4M12 20v2.4M4.2 4.2l1.7 1.7M18.1 18.1l1.7 1.7M1.6 12H4M20 12h2.4M4.2 19.8l1.7-1.7M18.1 5.9l1.7-1.7" stroke-linecap="round"/></svg>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+<div id="top"></div>
+
+<!-- ============ HERO ============ -->
+<div class="wrap hero">
+  <div class="hero-grid">
+    <div>
+      <p class="eyebrow">Bengaluru, India · B.Tech 2027</p>
+      <h1>Jaisurya Vetrivel</h1>
+      <p class="lede">Software engineer. I build things that have to keep running: a <strong>pre-IPO share trading platform</strong> live for a SEBI-registered BSE member broker, which I built and operate alone, and <strong>CrabbyGL</strong>, a voxel engine written from scratch in C++20 and OpenGL.</p>
+      <div class="links">
+        <a class="primary" href="assets/Jaisurya_Vetrivel_Resume.pdf">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" aria-hidden="true"><path d="M12 3v12m0 0 4.5-4.5M12 15l-4.5-4.5M4 17v2.5A1.5 1.5 0 0 0 5.5 21h13a1.5 1.5 0 0 0 1.5-1.5V17" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Résumé
+        </a>
+        <a href="https://github.com/Crabbypixel">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.4 7.4 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+          GitHub
+        </a>
+        <a href="https://linkedin.com/in/jaisurya-vetrivel">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M3.6 13.4V6.1H1.2v7.3h2.4zM2.4 5.1c.8 0 1.3-.55 1.3-1.24C3.69 3.16 3.2 2.6 2.42 2.6s-1.3.56-1.3 1.26c0 .69.5 1.24 1.27 1.24h.01zM5 13.4h2.4V9.3c0-.22.02-.44.08-.59.18-.43.57-.88 1.23-.88.87 0 1.21.66 1.21 1.62v3.95h2.4V9.18c0-2.22-1.18-3.25-2.76-3.25-1.29 0-1.86.71-2.17 1.2h.02V6.1H5c.03.68 0 7.3 0 7.3z"/></svg>
+          LinkedIn
+        </a>
+        <a href="mailto:jaisurya2701@gmail.com">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2.5" y="4.5" width="19" height="15" rx="2"/><path d="m3 6 9 6.5L21 6" stroke-linecap="round"/></svg>
+          Email
+        </a>
+      </div>
+    </div>
+    <canvas id="voxel" width="600" height="552" aria-label="Isometric voxel landscape, a nod to the CrabbyGL engine" role="img"></canvas>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="strip">
+    <div><b>Sep 2026</b><span>Platform live since</span></div>
+    <div><b>24</b><span>REST endpoints shipped</span></div>
+    <div><b>140 FPS</b><span>1% low, Intel UHD</span></div>
+    <div><b>350+</b><span>DSA problems solved</span></div>
+  </div>
+</div>
+
+<!-- ============ WORK ============ -->
+<section id="work" class="wrap">
+  <div class="row">
+    <h2><i>01 — Work</i>Built and shipped</h2>
+    <div>
+
+      <article class="entry">
+        <div class="entry-head">
+          <h3>MeraWealth</h3>
+          <span class="role">sole developer</span>
+          <span class="when">live since Sep 2026</span>
+        </div>
+        <p class="stack">Pre-IPO share trading platform · <em>NestJS</em> <em>Next.js</em> <em>PostgreSQL</em> <em>Prisma</em> <em>AWS EC2</em></p>
+        <ul class="bullets">
+          <li>A real brokerage runs on this. I am the only engineer on it: <strong>24 REST endpoints</strong> over a <strong>7-table PostgreSQL schema</strong> covering KYC onboarding, the admin review queue the broker's staff work in, and a <strong>6-state order lifecycle</strong>, from first commit through deployment and everything since.</li>
+          <li>Concurrent order matching is the part that has to be right. A <strong>per-company advisory lock</strong> serialises matching, <code>SELECT FOR UPDATE</code> row locks are re-validated inside the same transaction, and <strong>compare-and-set</strong> status updates return <strong>HTTP 409</strong> rather than overwriting a decision someone else already made. A <code>CHECK</code> constraint holds <code>pending = approved - matched</code> at the database level, so share inventory cannot drift even if the application is wrong.</li>
+          <li>Login is <strong>passwordless email OTP</strong>, challenge-bound with an atomic single-use claim, on server-side sessions with per-route rate limiting and Helmet/HSTS. The matching rules are covered by <strong>21 Jest unit tests</strong>.</li>
+          <li>The whole stack, Next.js SSR and NestJS and PostgreSQL, runs on a single <strong>1 GB / 2-vCPU EC2 instance</strong> at <strong>49% memory</strong> behind Nginx with PM2.</li>
+        </ul>
+        <div class="figs">
+          <div><b>24</b><span>endpoints</span></div>
+          <div><b>7</b><span>tables</span></div>
+          <div><b>6</b><span>order states</span></div>
+          <div><b>21</b><span>unit tests</span></div>
+          <div><b>49%</b><span>of 1 GB RAM</span></div>
+        </div>
+        <p class="out"><a href="https://merawealth.in">merawealth.in</a></p>
+      </article>
+
+      <article class="entry">
+        <div class="entry-head">
+          <h3>CrabbyGL</h3>
+          <span class="role">from scratch</span>
+          <span class="when">personal project</span>
+        </div>
+        <p class="stack">3D voxel game engine · <em>C++20</em> <em>OpenGL 3.3</em> <em>GLSL</em> <em>CMake</em> <em>multithreading</em></p>
+        <ul class="bullets">
+          <li>A Minecraft-style engine with no engine underneath it: infinite chunk streaming, <strong>BFS flood-fill lighting</strong>, ambient occlusion, AABB physics, DDA raycasting, a day/night cycle and distance fog.</li>
+          <li><strong>Binary greedy meshing</strong> merges runs of faces with bitmasks and cuts quad count <strong>2.4×</strong> (58% fewer than exposed-face culling alone), taking vertex data from <strong>11.8 MB to 4.7 MB</strong>. Gribb/Hartmann <strong>frustum culling</strong> drops <strong>57.8%</strong> of loaded chunks every frame, 197 draw calls down to 83.</li>
+          <li>Generation, meshing and saving run on a <strong>9-worker pipeline</strong> with double-buffered handoff and a per-chunk <code>std::shared_mutex</code>, keeping the render thread's critical sections <strong>O(1)</strong>. Finding and fixing a save/reload race and a shutdown lost-wakeup hang was most of the work. <strong>140 FPS 1% low</strong> on integrated Intel UHD graphics.</li>
+          <li>Water is a <strong>cellular automaton</strong> on a 20 TPS fixed tick: 7 flow levels plus falling water, order-independent two-phase updates that merge conflicting writes by strength, and a bounded BFS toward the nearest drop. A <strong>15-case regression harness</strong> runs clean under ASan and UBSan.</li>
+        </ul>
+        <div class="figs">
+          <div><b>2.4×</b><span>fewer quads</span></div>
+          <div><b>11.8 → 4.7 MB</b><span>vertex data</span></div>
+          <div><b>57.8%</b><span>chunks culled</span></div>
+          <div><b>9</b><span>worker threads</span></div>
+          <div><b>140 FPS</b><span>1% low</span></div>
+        </div>
+        <p class="out"><a href="https://github.com/Crabbypixel/CrabbyGL">github.com/Crabbypixel/CrabbyGL</a></p>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============ RESEARCH ============ -->
+<section id="research" class="wrap">
+  <div class="row">
+    <h2><i>02 — Research</i>CSIR-4PI</h2>
+    <div>
+      <article class="entry">
+        <div class="entry-head">
+          <h3>Physics-Informed Neural Networks</h3>
+          <span class="role">research intern</span>
+          <span class="when">May – Jul 2026</span>
+        </div>
+        <p class="stack">CSIR Fourth Paradigm Institute, Bengaluru · <em>Python</em> <em>PyTorch</em> <em>NumPy</em></p>
+        <ul class="bullets">
+          <li>Implemented <strong>PINNs</strong> in PyTorch that put the governing differential equation inside the training loss, using <strong>nested automatic differentiation</strong> to reach second-order residuals.</li>
+          <li>Built a <strong>variational PINN</strong> for the 1D transient heat equation from the weak formulation, with <strong>Gauss–Legendre quadrature</strong> and element-wise finite-element assembly, then tuned quadrature order, element count and gradient-biased time sampling against <strong>RMSE, relative L2 and maximum absolute error</strong>.</li>
+          <li>Applied the method to a <strong>fluid-conveying double carbon nanotube</strong>: a two-mode Galerkin projection to a coupled modal ODE system, stabilised by nondimensionalisation and Fourier feature encoding, checked against an independent <strong>matrix-exponential</strong> solution through modal trajectories and FFT eigenfrequencies.</li>
+        </ul>
+        <p class="out"><a href="https://drive.google.com/file/d/1ioNgY9JYU2tLhMrv9x1AAUntzO0Iu6CG/view?usp=sharing">Internship certificate</a></p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STACK ============ -->
+<section id="stack" class="wrap">
+  <div class="row">
+    <h2><i>03 — Stack</i>What I work in</h2>
+    <dl class="skills">
+      <div><dt>Languages</dt><dd><b>C++ (C++20)</b>, <b>Python</b>, <b>TypeScript</b>, <b>SQL</b>, C, JavaScript, Java, GLSL</dd></div>
+      <div><dt>Backend</dt><dd><b>NestJS</b>, Node.js, REST APIs, Prisma ORM, Jest, authentication and rate limiting</dd></div>
+      <div><dt>Data</dt><dd><b>PostgreSQL</b> — schema design, ACID transactions, advisory and row-level locking, CHECK constraints, indexing</dd></div>
+      <div><dt>Frontend</dt><dd><b>Next.js</b>, React, server-side rendering, internal admin tooling</dd></div>
+      <div><dt>Infra</dt><dd><b>AWS EC2</b>, Nginx, PM2, Docker, Git, Linux, CMake</dd></div>
+      <div><dt>Graphics &amp; ML</dt><dd><b>OpenGL 3.3</b>, GLSL, PyTorch, NumPy, ASan/UBSan</dd></div>
+      <div><dt>Fundamentals</dt><dd>Data structures and algorithms (<b>350+ problems</b>), concurrency, operating systems, computer networks, DBMS</dd></div>
+    </dl>
+  </div>
+</section>
+
+<!-- ============ BACKGROUND ============ -->
+<section id="background" class="wrap">
+  <div class="row">
+    <h2><i>04 — Background</i>Education and other</h2>
+    <div>
+      <div class="fact">
+        <p><b>B.Tech, Electrical &amp; Electronics Engineering</b><br>ABV-IIITM Gwalior · CGPA 8.09/10</p>
+        <span>Aug 2023 – May 2027</span>
+      </div>
+      <div class="fact">
+        <p><b>IEEE IoT Workshop speaker</b><br>Ran an embedded systems session for 100+ students</p>
+        <span>ABV-IIITM</span>
+      </div>
+      <div class="fact">
+        <p><b>Ranked 1st, EEE Hardware Workshop Competition</b><br>Merit-cum-Means Scholarship holder</p>
+        <span>ABV-IIITM</span>
+      </div>
+      <div class="fact">
+        <p><b>NPTEL certifications</b><br>Cloud Computing &amp; Distributed Systems (IIT Kanpur) · Database Management Systems (IIT Kharagpur) · Operating Systems (IIT Madras) · Computer Graphics (IIT Guwahati)</p>
+        <span>NPTEL</span>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer id="contact" class="wrap">
+  <div class="foot">
+    <div>
+      <h2>Open to software engineering roles and internships.</h2>
+      <p>Backend, systems, or anything where something has to stay up. Final year, graduating May 2027.</p>
+      <p class="mail"><a href="mailto:jaisurya2701@gmail.com">jaisurya2701@gmail.com</a> <button class="copy" id="copy" type="button">copy</button></p>
+    </div>
+    <div class="links">
+      <a href="https://github.com/Crabbypixel">GitHub</a>
+      <a href="https://linkedin.com/in/jaisurya-vetrivel">LinkedIn</a>
+      <a href="assets/Jaisurya_Vetrivel_Resume.pdf">Résumé PDF</a>
+    </div>
+  </div>
+  <div class="colophon">
+    <span>© <span id="yr">2026</span> Jaisurya Vetrivel</span>
+    <span>Built by hand. No framework, no build step.</span>
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ---- theme ---- */
+  var root = document.documentElement, btn = document.getElementById("theme");
+  try { var saved = localStorage.getItem("theme"); if (saved === "dark" || saved === "light") root.setAttribute("data-theme", saved); } catch (e) {}
+  btn.addEventListener("click", function () {
+    var dark = root.getAttribute("data-theme") === "dark" ||
+      (!root.hasAttribute("data-theme") && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = dark ? "light" : "dark";
+    root.setAttribute("data-theme", next);
+    try { localStorage.setItem("theme", next); } catch (e) {}
+    draw();
+  });
+
+  /* ---- copy email ---- */
+  var copy = document.getElementById("copy");
+  copy.addEventListener("click", function () {
+    var done = function () { copy.textContent = "copied"; setTimeout(function () { copy.textContent = "copy"; }, 1600); };
+    try {
+      navigator.clipboard.writeText("jaisurya2701@gmail.com").then(done, select);
+    } catch (e) { select(); }
+    function select() {
+      var r = document.createRange(); r.selectNodeContents(copy.previousElementSibling);
+      var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+      copy.textContent = "select + ⌘C";
+      setTimeout(function () { copy.textContent = "copy"; }, 2200);
+    }
+  });
+
+  document.getElementById("yr").textContent = new Date().getFullYear();
+
+  /* ---- isometric voxel field: a nod to CrabbyGL ---- */
+  var cv = document.getElementById("voxel"), ctx = cv.getContext("2d");
+  var N = 9, TW = 30, TH = 17, TZ = 21;          // tile half-width, half-depth, block height
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var t0 = performance.now();
+
+  function heights(t) {
+    var h = [];
+    for (var x = 0; x < N; x++) {
+      h[x] = [];
+      for (var y = 0; y < N; y++) {
+        var d = Math.sqrt((x - 4) * (x - 4) + (y - 4) * (y - 4));
+        var base = Math.sin(x * 0.72) * 1.15 + Math.cos(y * 0.63) * 1.05 + Math.sin((x + y) * 0.41) * 0.9;
+        var wave = reduce ? 0 : Math.sin(t * 0.00042 - d * 0.62) * 0.9;
+        h[x][y] = Math.max(1, Math.round(3.3 + base + wave));
+      }
+    }
+    return h;
+  }
+
+  function shade(hex, k) {                        // mix a token colour toward black/white
+    var c = hex.trim();
+    if (c.charAt(0) === "#") {
+      if (c.length === 4) c = "#" + c[1] + c[1] + c[2] + c[2] + c[3] + c[3];
+      var r = parseInt(c.substr(1, 2), 16), g = parseInt(c.substr(3, 2), 16), b = parseInt(c.substr(5, 2), 16);
+      r = Math.round(r * k); g = Math.round(g * k); b = Math.round(b * k);
+      return "rgb(" + Math.min(255, r) + "," + Math.min(255, g) + "," + Math.min(255, b) + ")";
+    }
+    return c;
+  }
+
+  function draw() {
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var w = cv.clientWidth || 300, h = Math.round(w * 0.92);
+    cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+
+    var scale = w / 300;
+    var accent = getComputedStyle(root).getPropertyValue("--accent") || "#004f90";
+    var top = shade(accent, 1.18), left = shade(accent, 0.72), right = shade(accent, 0.48);
+
+    var hs = heights(performance.now() - t0);
+    var ox = w / 2, oy = h * 0.30;
+    var tw = TW * scale, th = TH * scale, tz = TZ * scale;
+
+    for (var sum = 0; sum <= 2 * (N - 1); sum++) {
+      for (var x = 0; x < N; x++) {
+        var y = sum - x;
+        if (y < 0 || y >= N) continue;
+        var ht = hs[x][y];
+        var px = ox + (x - y) * tw * 0.5;
+        var py = oy + (x + y) * th * 0.5 - ht * tz * 0.5;
+
+        ctx.beginPath();                                   // top face
+        ctx.moveTo(px, py - th * 0.5);
+        ctx.lineTo(px + tw * 0.5, py);
+        ctx.lineTo(px, py + th * 0.5);
+        ctx.lineTo(px - tw * 0.5, py);
+        ctx.closePath(); ctx.fillStyle = top; ctx.fill();
+
+        var depth = Math.min(ht, 3) * tz * 0.5;
+        ctx.beginPath();                                   // left face
+        ctx.moveTo(px - tw * 0.5, py);
+        ctx.lineTo(px, py + th * 0.5);
+        ctx.lineTo(px, py + th * 0.5 + depth);
+        ctx.lineTo(px - tw * 0.5, py + depth);
+        ctx.closePath(); ctx.fillStyle = left; ctx.fill();
+
+        ctx.beginPath();                                   // right face
+        ctx.moveTo(px + tw * 0.5, py);
+        ctx.lineTo(px, py + th * 0.5);
+        ctx.lineTo(px, py + th * 0.5 + depth);
+        ctx.lineTo(px + tw * 0.5, py + depth);
+        ctx.closePath(); ctx.fillStyle = right; ctx.fill();
+      }
+    }
+  }
+
+  var tick = null;
+  function loop() { draw(); tick = requestAnimationFrame(loop); }
+  draw();
+  if (!reduce) {
+    loop();
+    document.addEventListener("visibilitychange", function () {
+      if (document.hidden) { cancelAnimationFrame(tick); tick = null; }
+      else if (!tick) loop();
+    });
+  }
+  window.addEventListener("resize", function () { if (reduce) draw(); });
+  if (window.matchMedia) {
+    var mq = window.matchMedia("(prefers-color-scheme: dark)");
+    if (mq.addEventListener) mq.addEventListener("change", draw);
+  }
+})();
+</script>
+</body>
+</html>
